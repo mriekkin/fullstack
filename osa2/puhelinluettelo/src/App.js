@@ -1,8 +1,8 @@
 import React from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
 import Persons from './components/Persons'
 import AddPerson from './components/AddPerson'
+import personService from './services/persons'
 
 class App extends React.Component {
   constructor(props) {
@@ -16,10 +16,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => {
-        this.setState({ persons: response.data })
+    personService
+      .getAll()
+      .then(persons => {
+        this.setState({ persons })
       })
   }
 
@@ -35,29 +35,67 @@ class App extends React.Component {
     this.setState({ filter: event.target.value })
   }
 
-  includesName(name) {
-    return this.state.persons.find(p => p.name === name) !== undefined
+  findPerson(name) {
+    return this.state.persons.find(p => p.name === name)
   }
 
   addPerson = (event) => {
     event.preventDefault()
-    if (this.includesName(this.state.newName)) {
-      alert("Person exists: enter another name")
-      return
-    }
-
     const person = {
       name: this.state.newName,
       number: this.state.newNumber
     }
 
-    const persons = this.state.persons.concat(person)
+    const existing = this.findPerson(this.state.newName)
+    if (existing !== undefined) {
+      this.updatePerson(existing.id, person)
+      return
+    }
 
-    this.setState({
-      persons: persons,
-      newName: '',
-      newNumber: ''
-    })
+    personService
+      .create(person)
+      .then(newPerson => {
+        this.setState({
+          persons: this.state.persons.concat(newPerson),
+          newName: '',
+          newNumber: ''
+        })
+      })
+      .catch(err => {
+        alert('Nimen lisääminen epäonnistui: \n\n' + err)
+      })
+  }
+
+  updatePerson = (id, person) => {
+    if (!window.confirm(`${person.name} on jo luettelossa, korvataanko vanha numero uudella?`)) {
+      return
+    }
+
+    personService
+      .update(id, person)
+      .then(newPerson => {
+        this.setState({
+          persons: this.state.persons.map(person => person.id !== id ? person : newPerson),
+          newName: '',
+          newNumber: ''
+        })
+      })
+  }
+
+  handleDeleteOf = (id) => {
+    return () => {
+      const person = this.state.persons.find(person => person.id === id)
+
+      if (window.confirm('poistetaanko ' + person.name)) {
+        personService
+          .remove(id)
+          .then(response => {
+            this.setState({
+              persons: this.state.persons.filter(person => person.id !== id)
+            })
+          })
+      }
+    }
   }
 
   render() {
@@ -82,6 +120,7 @@ class App extends React.Component {
         <Persons
           persons={this.state.persons}
           filter={this.state.filter}
+          handleDeleteOf={this.handleDeleteOf}
         />
       </div>
     )
