@@ -2,7 +2,9 @@ import React from 'react'
 import Filter from './components/Filter'
 import Persons from './components/Persons'
 import AddPerson from './components/AddPerson'
+import Notification from './components/Notification'
 import personService from './services/persons'
+import './index.css'
 
 class App extends React.Component {
   constructor(props) {
@@ -11,7 +13,8 @@ class App extends React.Component {
       persons: [],
       newName: '',
       newNumber: '',
-      filter: ''
+      filter: '',
+      notification: null
     }
   }
 
@@ -39,8 +42,18 @@ class App extends React.Component {
     return this.state.persons.find(p => p.name === name)
   }
 
+  setClearNotificationTimeout() {
+    setTimeout(() => {
+      this.setState({
+        notification: null
+      })
+    }, 2000)
+  }
+
   addPerson = (event) => {
-    event.preventDefault()
+    if (event !== undefined) {
+      event.preventDefault()
+    }
     const person = {
       name: this.state.newName,
       number: this.state.newNumber
@@ -58,11 +71,10 @@ class App extends React.Component {
         this.setState({
           persons: this.state.persons.concat(newPerson),
           newName: '',
-          newNumber: ''
+          newNumber: '',
+          notification: 'lisättiin ' + newPerson.name
         })
-      })
-      .catch(err => {
-        alert('Nimen lisääminen epäonnistui: \n\n' + err)
+        this.setClearNotificationTimeout()
       })
   }
 
@@ -77,8 +89,16 @@ class App extends React.Component {
         this.setState({
           persons: this.state.persons.map(person => person.id !== id ? person : newPerson),
           newName: '',
-          newNumber: ''
+          newNumber: '',
+          notification: 'päivitettiin ' + person.name
         })
+        this.setClearNotificationTimeout()
+      })
+      .catch(err => {
+        this.setState({
+          persons: this.state.persons.filter(p => p.id !== id)
+        })
+        this.addPerson()
       })
   }
 
@@ -91,7 +111,14 @@ class App extends React.Component {
           .remove(id)
           .then(response => {
             this.setState({
-              persons: this.state.persons.filter(person => person.id !== id)
+              persons: this.state.persons.filter(p => p.id !== id),
+              notification: 'poistettiin ' + person.name
+            })
+            this.setClearNotificationTimeout()
+          })
+          .catch(err => {
+            this.setState({
+              persons: this.state.persons.filter(p => p.id !== id)
             })
           })
       }
@@ -102,6 +129,8 @@ class App extends React.Component {
     return (
       <div>
         <h2>Puhelinluettelo</h2>
+        <Notification message={this.state.notification} />
+
         <Filter
           filter={this.state.filter}
           handleFilterChange={this.handleFilterChange}
