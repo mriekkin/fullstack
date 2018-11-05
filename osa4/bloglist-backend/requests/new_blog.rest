@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "author": "Mikko Mallikas",
+  "title": "Fullstack-blogi",
+  "url": "http://fullstack-blogi.example.com/",
+  "votes": "100"
+}
