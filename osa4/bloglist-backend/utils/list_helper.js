@@ -56,9 +56,40 @@ const mostBlogs = (blogs) => {
   }
 }
 
+const mostLikes = (blogs) => {
+  if (blogs.length === 0) {
+    return null
+  }
+
+  const first = blogs[0]
+  let likeCounts = new Map()
+  likeCounts.set(first.author, 0)
+
+  const author = blogs.reduce((leader, blog) => {
+    let likes = blog.likes
+    if (likeCounts.has(blog.author)) {
+      likes += likeCounts.get(blog.author)
+    }
+
+    likeCounts.set(blog.author, likes)
+
+    if (likes > likeCounts.get(leader)) {
+      return blog.author
+    }
+
+    return leader
+  }, first.author)
+
+  return {
+    author: author,
+    likes: likeCounts.get(author)
+  }
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
