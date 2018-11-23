@@ -43,7 +43,7 @@ describe('API tests for POST', () => {
       title: 'Example blog',
       author: 'John Doe',
       url: 'http://blog.example.com/',
-      likes: 5,
+      likes: 5
     }
 
     await api
@@ -59,6 +59,27 @@ describe('API tests for POST', () => {
 
     expect(titles.length).toBe(testBlogs.blogs.length + 1)
     expect(titles).toContain('Example blog')
+  })
+
+  test('the field likes has a default value of 0', async () => {
+    const newBlog = {
+      title: 'A blog with no likes',
+      author: 'John Doe',
+      url: 'http://obscure.example.com/'
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const response = await api
+      .get('/api/blogs')
+
+    const r = response.body.find(blog => blog.title === 'A blog with no likes')
+
+    expect(r.likes).toBe(0)
   })
 })
 
