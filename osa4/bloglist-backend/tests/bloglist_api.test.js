@@ -81,6 +81,48 @@ describe('API tests for POST', () => {
 
     expect(r.likes).toBe(0)
   })
+
+  test('a blog without a title is not added', async () => {
+    const newBlog = {
+      author: 'John Doe',
+      url: 'http://notitle.example.com/',
+      likes: '1'
+    }
+
+    const initialBlogs = await api
+      .get('/api/blogs')
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    const response = await api
+      .get('/api/blogs')
+
+    expect(response.body.length).toBe(initialBlogs.body.length)
+  })
+
+  test('a blog without an URL is not added', async () => {
+    const newBlog = {
+      title: 'A blog without an URL',
+      author: 'John Doe',
+      likes: '1'
+    }
+
+    const initialBlogs = await api
+      .get('/api/blogs')
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    const response = await api
+      .get('/api/blogs')
+
+    expect(response.body.length).toBe(initialBlogs.body.length)
+  })
 })
 
 afterAll(() => {

@@ -21,17 +21,29 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const body = request.body
+  try {
+    const body = request.body
 
-  const blog = new Blog({
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes || 0
-  })
+    if (!body.title) {
+      return response.status(400).json({ error: 'title missing' })
+    }
 
-  const result = await blog.save()
-  response.status(201).json(formatBlog(result))
+    if (!body.url) {
+      return response.status(400).json({ error: 'URL missing' })
+    }
+
+    const blog = new Blog({
+      title: body.title,
+      author: body.author,
+      url: body.url,
+      likes: body.likes || 0
+    })
+
+    const result = await blog.save()
+    response.status(201).json(formatBlog(result))
+  } catch (exception) {
+    response.status(500).json({ error: 'something went wrong...' })
+  }
 })
 
 module.exports = blogsRouter
