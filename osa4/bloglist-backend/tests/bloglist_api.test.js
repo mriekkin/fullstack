@@ -2,17 +2,18 @@ const supertest = require('supertest')
 const { app, server } = require('../index')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const helper = require('./test_helper')
 const testBlogs = require('./testBlogs')
 
-beforeAll(async () => {
-  await Blog.remove({})
+describe('API tests for GET /api/blogs', () => {
+  beforeAll(async () => {
+    await Blog.remove({})
 
-  const blogObjects = testBlogs.blogs.map(blog => new Blog(blog))
-  const promiseArray = blogObjects.map(blog => blog.save())
-  await Promise.all(promiseArray)
-})
+    const blogObjects = testBlogs.blogs.map(blog => new Blog(blog))
+    const promiseArray = blogObjects.map(blog => blog.save())
+    await Promise.all(promiseArray)
+  })
 
-describe('API tests for GET', () => {
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -20,11 +21,21 @@ describe('API tests for GET', () => {
       .expect('Content-Type', /application\/json/)
   })
 
-  test('all blogs are returned', async () => {
+  test('all blogs are returned as json by GET /api/blogs', async () => {
+    const blogsInDatabase = await helper.blogsInDb()
+
     const response = await api
       .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-    expect(response.body.length).toBe(6)
+    expect(response.body.length).toBe(blogsInDatabase.length)
+
+    const returnedTitles = response.body.map(blog => blog.title)
+
+    blogsInDatabase.forEach(blog => {
+      expect(returnedTitles).toContain(blog.title)
+    })
   })
 
   test('a specific blog is within the returned blogs', async () => {
@@ -37,7 +48,7 @@ describe('API tests for GET', () => {
   })
 })
 
-describe('API tests for POST', () => {
+describe('API tests for POST /api/blogs', () => {
   test('a valid blog can be added', async () => {
     const newBlog = {
       title: 'Example blog',
@@ -46,19 +57,20 @@ describe('API tests for POST', () => {
       likes: 5
     }
 
+    const blogsBefore = await helper.blogsInDb()
+
     await api
       .post('/api/blogs')
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const response = await api
-      .get('/api/blogs')
+    let blogsAfter = await helper.blogsInDb()
 
-    const titles = response.body.map(blog => blog.title)
+    blogsAfter = blogsAfter.map(helper.dropId)
 
-    expect(titles.length).toBe(testBlogs.blogs.length + 1)
-    expect(titles).toContain('Example blog')
+    expect(blogsAfter.length).toBe(blogsBefore.length + 1)
+    expect(blogsAfter).toContainEqual(newBlog)
   })
 
   test('the field likes has a default value of 0', async () => {
@@ -74,10 +86,9 @@ describe('API tests for POST', () => {
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
-    const response = await api
-      .get('/api/blogs')
+    const blogsAfter = await helper.blogsInDb()
 
-    const r = response.body.find(blog => blog.title === 'A blog with no likes')
+    const r = blogsAfter.find(blog => blog.title === 'A blog with no likes')
 
     expect(r.likes).toBe(0)
   })
@@ -89,18 +100,16 @@ describe('API tests for POST', () => {
       likes: '1'
     }
 
-    const initialBlogs = await api
-      .get('/api/blogs')
+    const blogsBefore = await helper.blogsInDb()
 
     await api
       .post('/api/blogs')
       .send(newBlog)
       .expect(400)
 
-    const response = await api
-      .get('/api/blogs')
+    const blogsAfter = await helper.blogsInDb()
 
-    expect(response.body.length).toBe(initialBlogs.body.length)
+    expect(blogsAfter.length).toBe(blogsBefore.length)
   })
 
   test('a blog without an URL is not added', async () => {
@@ -110,18 +119,16 @@ describe('API tests for POST', () => {
       likes: '1'
     }
 
-    const initialBlogs = await api
-      .get('/api/blogs')
+    const blogsBefore = await helper.blogsInDb()
 
     await api
       .post('/api/blogs')
       .send(newBlog)
       .expect(400)
 
-    const response = await api
-      .get('/api/blogs')
+    const blogsAfter = await helper.blogsInDb()
 
-    expect(response.body.length).toBe(initialBlogs.body.length)
+    expect(blogsAfter.length).toBe(blogsBefore.length)
   })
 })
 
