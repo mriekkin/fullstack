@@ -1,0 +1,9 @@
+PUT http://localhost:3001/api/blogs/5be06f05420d1912f07ac5e1
+Content-Type: application/json
+
+{
+  "title": "Fullstack-blogi 2",
+  "author": "Minna Mallikas",
+  "url": "http://fullstack-blogi2.example.com/",
+  "likes": 1000
+}

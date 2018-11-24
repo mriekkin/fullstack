@@ -161,6 +161,42 @@ describe('deletion of a blog (API tests)', async () => {
   })
 })
 
+describe('updating of a blog (API tests)', async () => {
+  let addedBlog
+  let updatedBlog
+
+  beforeAll(async () => {
+    addedBlog = new Blog({
+      title: 'A blog to be updated with HTTP PUT',
+      author: 'John Doe',
+      url: 'http://update.example.com',
+      likes: 1
+    })
+    await addedBlog.save()
+    updatedBlog = {
+      id: addedBlog._id,
+      title: 'A blog which has been updated',
+      author: addedBlog.author,
+      url: addedBlog.url,
+      likes: 10
+    }
+  })
+
+  test('PUT /api/blogs/:id succeeds with proper statuscode', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+
+    await api
+      .put(`/api/blogs/${updatedBlog.id}`)
+      .send(updatedBlog)
+      .expect(200)
+
+    const blogsAfter = await helper.blogsInDb()
+
+    expect(blogsAfter.length).toBe(blogsAtStart.length)
+    expect(blogsAfter).toContainEqual(updatedBlog)
+  })
+})
+
 afterAll(() => {
   server.close()
 })
