@@ -5,7 +5,7 @@ const Blog = require('../models/blog')
 const helper = require('./test_helper')
 const testBlogs = require('./testBlogs')
 
-describe('API tests for GET /api/blogs', () => {
+describe('getting a list of blogs (API tests)', () => {
   beforeAll(async () => {
     await Blog.remove({})
 
@@ -48,7 +48,7 @@ describe('API tests for GET /api/blogs', () => {
   })
 })
 
-describe('API tests for POST /api/blogs', () => {
+describe('adding a blog (API tests)', () => {
   test('a valid blog can be added', async () => {
     const newBlog = {
       title: 'Example blog',
@@ -129,6 +129,35 @@ describe('API tests for POST /api/blogs', () => {
     const blogsAfter = await helper.blogsInDb()
 
     expect(blogsAfter.length).toBe(blogsBefore.length)
+  })
+})
+
+describe('deletion of a blog (API tests)', async () => {
+  let addedBlog
+
+  beforeAll(async () => {
+    addedBlog = new Blog({
+      title: 'A blog to be removed with HTTP DELETE',
+      author: 'John Doe',
+      url: 'http://delete.example.com',
+      likes: 1
+    })
+    await addedBlog.save()
+  })
+
+  test('DELETE /api/blogs/:id succeeds with proper statuscode', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+
+    await api
+      .delete(`/api/blogs/${addedBlog._id}`)
+      .expect(204)
+
+    const blogsAfter = await helper.blogsInDb()
+
+    const titles = blogsAfter.map(blog => blog.title)
+
+    expect(titles).not.toContain(addedBlog.title)
+    expect(blogsAfter.length).toBe(blogsAtStart.length - 1)
   })
 })
 
