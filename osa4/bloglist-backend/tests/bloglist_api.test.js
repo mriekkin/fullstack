@@ -75,6 +75,8 @@ describe('adding a blog', () => {
   })
 
   test('the field likes has a default value of 0', async () => {
+    const blogsBefore = await blogsInDb()
+
     const newBlog = {
       title: 'A blog with no likes',
       author: 'John Doe',
@@ -88,6 +90,7 @@ describe('adding a blog', () => {
       .expect('Content-Type', /application\/json/)
 
     const blogsAfter = await blogsInDb()
+    expect(blogsAfter.length).toBe(blogsBefore.length + 1)
 
     const r = blogsAfter.find(blog => blog.title === 'A blog with no likes')
 
@@ -206,7 +209,7 @@ describe('when there is initially one user at db', async () => {
   })
 
   test('POST /api/users succeeds with a fresh username', async () => {
-    const usersBeforeOperation = await usersInDb()
+    const usersBefore = await usersInDb()
 
     const newUser = {
       username: 'mluukkai',
@@ -221,14 +224,14 @@ describe('when there is initially one user at db', async () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
-    const usersAfterOperation = await usersInDb()
-    expect(usersAfterOperation.length).toBe(usersBeforeOperation.length + 1)
-    const usernames = usersAfterOperation.map(u => u.username)
+    const usersAfter = await usersInDb()
+    expect(usersAfter.length).toBe(usersBefore.length + 1)
+    const usernames = usersAfter.map(u => u.username)
     expect(usernames).toContain(newUser.username)
   })
 
   test('POST /api/users fails with proper statuscode and message if username already taken', async () => {
-    const usersBeforeOperation = await usersInDb()
+    const usersBefore = await usersInDb()
 
     const newUser = {
       username: 'root',
@@ -245,10 +248,56 @@ describe('when there is initially one user at db', async () => {
 
     expect(result.body).toEqual({ error: 'username must be unique' })
 
-    const usersAfterOperation = await usersInDb()
-    expect(usersAfterOperation.length).toBe(usersBeforeOperation.length)
+    const usersAfter = await usersInDb()
+    expect(usersAfter.length).toBe(usersBefore.length)
+  })
+})
+
+describe('creating a new user', () => {
+  test('a password with less than 3 characters is rejected', async () => {
+    const usersBefore = await usersInDb()
+
+    const newUser = {
+      username: 'short',
+      name: 'Short password',
+      adult: true,
+      password: 'sa'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body).toEqual({ error: 'password must be at least 3 characters long' })
+
+    const usersAfter = await usersInDb()
+    expect(usersAfter.length).toBe(usersBefore.length)
   })
 
+  test('the field adult has a default value of true', async () => {
+    const usersBefore = await usersInDb()
+
+    const newUser = {
+      username: 'default',
+      name: 'Default Adult',
+      password: 'salainen'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAfter = await usersInDb()
+    expect(usersAfter.length).toBe(usersBefore.length + 1)
+
+    const r = usersAfter.find(user => user.username === 'default')
+
+    expect(r.adult).toBe(true)
+  })
 })
 
 afterAll(() => {
