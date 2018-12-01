@@ -2,8 +2,8 @@ POST http://localhost:3001/api/blogs
 Content-Type: application/json
 
 {
-  "title": "Fullstack-blogi",
-  "author": "Mikko Mallikas",
-  "url": "http://fullstack-blogi.example.com/",
+  "title": "Blogin lisääjäksi tulee järjestyksessä ensimmäinen käyttäjä kannassa",
+  "author": "Samu Sirkka",
+  "url": "http://samu.example.com/",
   "likes": 100
 }
