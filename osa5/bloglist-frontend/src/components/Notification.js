@@ -1,12 +1,13 @@
 import React from 'react'
 import '../index.css'
 
-const Notification = ({ message }) => {
+const Notification = ({ message, isError }) => {
   if (message === null) {
     return null
   }
+  const className = isError ? 'error' : 'success'
   return (
-    <div className="error">
+    <div className={className}>
       {message}
     </div>
   )

@@ -10,7 +10,8 @@ class App extends React.Component {
     super(props)
     this.state = {
       blogs: [],
-      error: null,
+      message: null,
+      isError: true,
       username: '',
       password: '',
       user: null
@@ -42,12 +43,7 @@ class App extends React.Component {
       blogService.setToken(user.token)
       this.setState({ username: '', password: '', user})
     } catch(exception) {
-      this.setState({
-        error: 'invalid username or password',
-      })
-      setTimeout(() => {
-        this.setState({ error: null })
-      }, 5000)
+      this.showNotification('wrong username or password', true)
     }
   }
 
@@ -62,7 +58,15 @@ class App extends React.Component {
   }
 
   addBlog = (newBlog) => {
+    this.showNotification(`a new blog '${newBlog.title}' by ${newBlog.author} added`)
     this.setState({ blogs: this.state.blogs.concat(newBlog) })
+  }
+
+  showNotification = (message, isError) => {
+    this.setState({ message, isError })
+    setTimeout(() => {
+      this.setState({ message: null })
+    }, 5000)
   }
 
   render() {
@@ -71,7 +75,10 @@ class App extends React.Component {
         <div>
         <h2>Log in to application</h2>
 
-        <Notification message={this.state.error} />
+        <Notification
+          message={this.state.message}
+          isError={this.state.isError}
+        />
 
         <form onSubmit={this.login}>
           <div>
@@ -101,12 +108,18 @@ class App extends React.Component {
     return (
       <div>
         <h2>blogs</h2>
-        <Notification message={this.state.error} />
+        <Notification
+          message={this.state.message}
+          isError={this.state.isError}
+        />
         <p>
           {this.state.user.name} logged in
           <button onClick={this.logout}>logout</button>
         </p>
-        <CreateBlog addBlog={this.addBlog} />
+        <CreateBlog
+          addBlog={this.addBlog}
+          showNotification={this.showNotification}
+        />
         {this.state.blogs.map(blog => 
           <Blog key={blog.id} blog={blog}/>
         )}

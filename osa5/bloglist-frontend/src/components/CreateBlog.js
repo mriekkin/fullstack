@@ -10,6 +10,7 @@ class CreateBlog extends React.Component {
       url: ''
     }
     this.addBlog = props.addBlog
+    this.showNotification = props.showNotification
   }
 
   handleFieldChange = (event) => {
@@ -28,12 +29,8 @@ class CreateBlog extends React.Component {
       this.addBlog(blog)
       this.setState({ title: '', author: '', url: '' })
     } catch (exception) {
-      this.setState({
-        error: 'something went wrong: ' + exception,
-      })
-      setTimeout(() => {
-        this.setState({ error: null })
-      }, 5000)
+      console.log(exception)
+      this.showNotification('cannot create a new blog: a field is missing', true)
     }
   }
 
