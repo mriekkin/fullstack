@@ -1,6 +1,7 @@
 import React from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
+import CreateBlog from './components/CreateBlog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -24,6 +25,7 @@ class App extends React.Component {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
+      blogService.setToken(user.token)
       this.setState({user})
     }
   }
@@ -37,6 +39,7 @@ class App extends React.Component {
       })
 
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
+      blogService.setToken(user.token)
       this.setState({ username: '', password: '', user})
     } catch(exception) {
       this.setState({
@@ -50,11 +53,16 @@ class App extends React.Component {
 
   logout = (event) => {
     window.localStorage.removeItem('loggedBlogAppUser')
+    blogService.setToken(null)
     this.setState({ user: null })
   }
 
   handleLoginFieldChange = (event) => {
     this.setState({ [event.target.name]: event.target.value })
+  }
+
+  addBlog = (newBlog) => {
+    this.setState({ blogs: this.state.blogs.concat(newBlog) })
   }
 
   render() {
@@ -98,6 +106,7 @@ class App extends React.Component {
           {this.state.user.name} logged in
           <button onClick={this.logout}>logout</button>
         </p>
+        <CreateBlog addBlog={this.addBlog} />
         {this.state.blogs.map(blog => 
           <Blog key={blog.id} blog={blog}/>
         )}
