@@ -20,9 +20,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    blogService.getAll().then(blogs =>
+    blogService.getAll().then(blogs => {
+      this.sort(blogs)
       this.setState({ blogs })
-    )
+    })
 
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
@@ -30,6 +31,10 @@ class App extends React.Component {
       blogService.setToken(user.token)
       this.setState({user})
     }
+  }
+
+  sort = (blogs) => {
+    return blogs.sort((a, b) => b.likes - a.likes || a.id - b.id)
   }
 
   login = async (event) => {
@@ -66,8 +71,8 @@ class App extends React.Component {
 
   updateBlog = (updatedBlog) => {
     this.setState({
-      blogs: this.state.blogs.map(blog =>
-        blog.id !== updatedBlog.id ? blog : updatedBlog)
+      blogs: this.sort(this.state.blogs.map(blog =>
+        blog.id !== updatedBlog.id ? blog : updatedBlog))
       })
   }
 
