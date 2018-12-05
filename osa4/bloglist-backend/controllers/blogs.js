@@ -73,7 +73,7 @@ blogsRouter.delete('/:id', async (request, response) => {
       return response.status(400).json({ error: 'invalid id' })
     }
 
-    if (blog.user.toString() !== decodedToken.id) {
+    if (blog.user && blog.user.toString() !== decodedToken.id) {
       return response.status(401).json({ error: 'this blog doesn\'t belong to you' })
     }
 

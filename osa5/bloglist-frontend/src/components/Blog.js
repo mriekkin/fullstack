@@ -9,6 +9,7 @@ class Blog extends React.Component {
       isBig: false
     }
     this.updateBlog = props.updateBlog
+    this.deleteBlog = props.deleteBlog
   }
 
   blogStyle = {
@@ -21,6 +22,10 @@ class Blog extends React.Component {
 
   detailsStyle = {
     paddingLeft: 10
+  }
+
+  handleClick = () => {
+    this.setState({ isBig: !this.state.isBig })
   }
 
   handleLike = async (event) => {
@@ -57,13 +62,15 @@ class Blog extends React.Component {
     this.updateBlog(response)
   }
 
-  handleClick = () => {
-    this.setState({ isBig: !this.state.isBig })
+  handleDelete = (event) => {
+    if (window.confirm(`delete '${this.state.blog.title}' by ${this.state.blog.author}?`)) {
+      this.deleteBlog(this.state.blog.id)
+    }
   }
 
   getName = (user) => {
     if (!user) {
-      return ''
+      return 'anonymous'
     }
     return user.name
   }
@@ -81,7 +88,8 @@ class Blog extends React.Component {
               <button onClick={this.handleLike} blog={this.state.blog}>
                 like
               </button><br/>
-            added by {this.getName(this.state.blog.user)}
+            added by {this.getName(this.state.blog.user)}<br/>
+            <button onClick={this.handleDelete}>delete</button>
           </div>
         </div>
       )
