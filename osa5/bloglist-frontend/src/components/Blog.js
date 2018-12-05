@@ -6,7 +6,8 @@ class Blog extends React.Component {
     super(props)
     this.state = {
       blog: props.blog,
-      isBig: false
+      isBig: false,
+      canDelete: props.canDelete
     }
     this.updateBlog = props.updateBlog
     this.deleteBlog = props.deleteBlog
@@ -89,7 +90,9 @@ class Blog extends React.Component {
                 like
               </button><br/>
             added by {this.getName(this.state.blog.user)}<br/>
-            <button onClick={this.handleDelete}>delete</button>
+            {this.state.canDelete &&
+              <button onClick={this.handleDelete}>delete</button>
+            }
           </div>
         </div>
       )

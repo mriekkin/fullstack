@@ -91,6 +91,10 @@ class App extends React.Component {
     })
   }
 
+  canDelete = (blog) => {
+    return blog.user === undefined || blog.user.username === this.state.user.username
+  }
+
   showNotification = (message, isError) => {
     this.setState({ message, isError })
     setTimeout(() => {
@@ -156,7 +160,9 @@ class App extends React.Component {
             key={blog.id}
             blog={blog}
             updateBlog={this.updateBlog}
-            deleteBlog={this.deleteBlog} />
+            deleteBlog={this.deleteBlog}
+            canDelete={this.canDelete(blog)}
+          />
         )}
       </div>
     )
