@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import blogService from '../services/blogs'
 
 class CreateBlog extends React.Component {
@@ -71,6 +72,11 @@ class CreateBlog extends React.Component {
       </div>
     )
   }
+}
+
+CreateBlog.propTypes = {
+  addBlog: PropTypes.func.isRequired,
+  showNotification: PropTypes.func.isRequired
 }
 
 export default CreateBlog

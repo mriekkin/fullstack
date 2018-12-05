@@ -1,5 +1,6 @@
 import React from 'react'
 import Blog from './components/Blog'
+import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import CreateBlog from './components/CreateBlog'
 import Togglable from './components/Togglable'
@@ -113,27 +114,12 @@ class App extends React.Component {
           isError={this.state.isError}
         />
 
-        <form onSubmit={this.login}>
-          <div>
-            username:
-            <input
-              type="text"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <div>
-            password:
-            <input
-              type="password"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <button type="submit">login</button>
-        </form>
+        <LoginForm
+          handleSubmit={this.login}
+          handleChange={this.handleLoginFieldChange}
+          username={this.state.username}
+          password={this.state.password}
+        />
       </div>
       )
     }

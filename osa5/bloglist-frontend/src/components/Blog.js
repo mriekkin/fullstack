@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import blogService from '../services/blogs'
 
 class Blog extends React.Component {
@@ -104,6 +105,13 @@ class Blog extends React.Component {
       </div>
     )
   }
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  updateBlog: PropTypes.func.isRequired,
+  deleteBlog: PropTypes.func.isRequired,
+  canDelete: PropTypes.bool.isRequired
 }
 
 export default Blog
