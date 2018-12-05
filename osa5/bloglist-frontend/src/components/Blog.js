@@ -1,4 +1,5 @@
 import React from 'react'
+import blogService from '../services/blogs'
 
 class Blog extends React.Component {
   constructor(props) {
@@ -7,6 +8,7 @@ class Blog extends React.Component {
       blog: props.blog,
       isBig: false
     }
+    this.updateBlog = props.updateBlog
   }
 
   blogStyle = {
@@ -19,6 +21,40 @@ class Blog extends React.Component {
 
   detailsStyle = {
     paddingLeft: 10
+  }
+
+  handleLike = async (event) => {
+    let updatedBlog = {
+      likes: this.state.blog.likes + 1,
+      title: this.state.blog.title,
+      author: this.state.blog.author,
+      url: this.state.blog.url,
+    }
+
+    if (this.state.blog.user) {
+      updatedBlog.user = this.state.blog.user._id
+    }
+
+    const response = await blogService.update(this.state.blog.id, updatedBlog)
+    if (!response.id) {
+      console.log(response)
+      return
+    }
+
+    // Manually "populate" the user property,
+    // which is missing from the response
+    if (this.state.blog.user) {
+      response.user = {
+        name: this.state.blog.user.name,
+        username: this.state.blog.user.username,
+        _id: this.state.blog.user._id
+      }
+    }
+
+    // NOTE! This seems to work, but may be the wrong way to update state
+    // We update both local (Blog) and global (App) state
+    this.setState({ blog: response })
+    this.updateBlog(response)
   }
 
   handleClick = () => {
@@ -41,7 +77,10 @@ class Blog extends React.Component {
           </div>
           <div style={this.detailsStyle}>
             <a href={this.state.blog.url}>{this.state.blog.url}</a><br/>
-            {this.state.blog.likes} likes <button>like</button><br/>
+            {this.state.blog.likes} likes
+              <button onClick={this.handleLike} blog={this.state.blog}>
+                like
+              </button><br/>
             added by {this.getName(this.state.blog.user)}
           </div>
         </div>

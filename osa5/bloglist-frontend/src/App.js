@@ -64,6 +64,13 @@ class App extends React.Component {
     this.setState({ blogs: this.state.blogs.concat(newBlog) })
   }
 
+  updateBlog = (updatedBlog) => {
+    this.setState({
+      blogs: this.state.blogs.map(blog =>
+        blog.id !== updatedBlog.id ? blog : updatedBlog)
+      })
+  }
+
   showNotification = (message, isError) => {
     this.setState({ message, isError })
     setTimeout(() => {
@@ -125,10 +132,10 @@ class App extends React.Component {
           />
         </Togglable>
         {this.state.blogs.map(blog => 
-          <Blog key={blog.id} blog={blog}/>
+          <Blog key={blog.id} blog={blog} updateBlog={this.updateBlog} />
         )}
       </div>
-    );
+    )
   }
 }
 
