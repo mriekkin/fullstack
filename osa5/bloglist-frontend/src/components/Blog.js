@@ -81,10 +81,10 @@ class Blog extends React.Component {
     if (this.state.isBig) {
       return (
         <div style={this.blogStyle}>
-          <div onClick={this.handleClick}>
+          <div onClick={this.handleClick} className="name">
             {this.state.blog.title} {this.state.blog.author}
           </div>
-          <div style={this.detailsStyle}>
+          <div style={this.detailsStyle} className="details">
             <a href={this.state.blog.url}>{this.state.blog.url}</a><br/>
             {this.state.blog.likes} likes
               <button onClick={this.handleLike} blog={this.state.blog}>
@@ -100,7 +100,7 @@ class Blog extends React.Component {
     }
 
     return (
-      <div style={this.blogStyle} onClick={this.handleClick}>
+      <div style={this.blogStyle} onClick={this.handleClick} className="name">
         {this.state.blog.title} {this.state.blog.author}
       </div>
     )
