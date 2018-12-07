@@ -1,8 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import {createStore} from 'redux'
+import counterReducer from './reducer'
 
-const Statistiikka = () => {
-  const palautteita = 0
+const store = createStore(counterReducer)
+
+const Statistiikka = ({ handleReset }) => {
+  const state = store.getState()
+  const palautteita = state.good + state.ok + state.bad
 
   if (palautteita === 0) {
     return (
@@ -20,35 +25,37 @@ const Statistiikka = () => {
         <tbody>
           <tr>
             <td>hyvä</td>
-            <td></td>
+            <td>{state.good}</td>
           </tr>
           <tr>
             <td>neutraali</td>
-            <td></td>
+            <td>{state.ok}</td>
           </tr>
           <tr>
             <td>huono</td>
-            <td></td>
+            <td>{state.bad}</td>
           </tr>
           <tr>
             <td>keskiarvo</td>
-            <td></td>
+            <td>{((state.good - state.bad) / palautteita).toFixed(2)}</td>
           </tr>
           <tr>
             <td>positiivisia</td>
-            <td></td>
+            <td>{(100 * (state.good / palautteita)).toFixed(1)} %</td>
           </tr>
         </tbody>
       </table>
 
-      <button>nollaa tilasto</button>
+      <button onClick={handleReset}>nollaa tilasto</button>
     </div >
   )
 }
 
 class App extends React.Component {
   klik = (nappi) => () => {
-
+    store.dispatch({
+      type: nappi
+    })
   }
 
   render() {
@@ -58,10 +65,15 @@ class App extends React.Component {
         <button onClick={this.klik('GOOD')}>hyvä</button>
         <button onClick={this.klik('OK')}>neutraali</button>
         <button onClick={this.klik('BAD')}>huono</button>
-        <Statistiikka />
+        <Statistiikka handleReset={this.klik('ZERO')} />
       </div>
     )
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const render = () => {
+  ReactDOM.render(<App />, document.getElementById('root'))
+}
+
+render()
+store.subscribe(render)
