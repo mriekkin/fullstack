@@ -1,10 +1,10 @@
-const reducer = (state = 'Hello, world!', action) => {
+const reducer = (state = null, action) => {
   if (action.type === 'SHOW_NOTIFICATION') {
-    state = action.message
+    return action.message
   }
 
   if (action.type === 'HIDE_NOTIFICATION') {
-    state = null
+    return null
   }
 
   return state
