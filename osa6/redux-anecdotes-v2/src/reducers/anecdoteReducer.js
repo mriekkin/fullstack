@@ -5,9 +5,7 @@ const reducer = (store = [], action) => {
 
   if (action.type==='VOTE') {
     const old = store.filter(a => a.id !==action.id)
-    const voted = store.find(a => a.id === action.id)
-
-    return [...old, { ...voted, votes: voted.votes + 1 } ]
+    return [...old, action.newAnecdote ]
   }
 
   if (action.type === 'CREATE') {
@@ -31,10 +29,11 @@ export const anecdoteCreation = (data) => {
   }
 }
 
-export const anecdoteVoting = (id) => {
+export const anecdoteVoting = (id, newAnecdote) => {
   return {
     type: 'VOTE',
-    id
+    id,
+    newAnecdote
   }
 }
 

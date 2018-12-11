@@ -1,13 +1,18 @@
 import React from 'react'
-import { connect } from 'react-redux'
 import Filter from './Filter'
+import anecdoteService from '../services/anecdotes'
+import { connect } from 'react-redux'
 import { anecdoteVoting } from '../reducers/anecdoteReducer'
 import { showMessage, hideMessage } from '../reducers/notificationReducer'
 
 class AnecdoteList extends React.Component {
-  handleVote = (anecdote) => () => {
-    this.props.anecdoteVoting(anecdote.id)
-    this.props.showMessage(`You voted '${anecdote.content}'`)
+  handleVote = (anecdote) => async () => {
+    const newAnecdote = await anecdoteService.update(anecdote.id, {
+      ...anecdote, votes: anecdote.votes + 1
+    })
+
+    this.props.anecdoteVoting(newAnecdote.id, newAnecdote)
+    this.props.showMessage(`You voted '${newAnecdote.content}'`)
     setTimeout(() => {
       this.props.hideMessage()
     }, 5000)
