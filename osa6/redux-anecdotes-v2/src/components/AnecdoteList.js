@@ -25,7 +25,7 @@ class AnecdoteList extends React.Component {
     return (
       <div>
         <h2>Anecdotes</h2>
-        <Filter store={this.props.store} />
+        <Filter />
         {anecdotes
           .filter(anecdote => anecdote.content.toLowerCase().includes(filterLow))
           .sort((a, b) => b.votes - a.votes)

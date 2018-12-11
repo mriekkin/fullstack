@@ -12,7 +12,7 @@ class App extends React.Component {
         <h1>Programming anecdotes</h1>
         <Notification />
         <AnecdoteList store={this.props.store} />
-        <AnecdoteForm store={this.props.store} />
+        <AnecdoteForm />
       </div>
     )
   }
