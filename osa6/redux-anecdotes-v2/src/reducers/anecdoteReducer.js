@@ -1,5 +1,3 @@
-const getId = () => (100000*Math.random()).toFixed(0)
-
 const reducer = (store = [], action) => {
   if (action.type === 'INIT') {
     return action.data
@@ -13,7 +11,7 @@ const reducer = (store = [], action) => {
   }
 
   if (action.type === 'CREATE') {
-    return [...store, { content: action.content, id: getId(), votes: 0 }]
+    return [...store, action.data]
   }
 
   return store
@@ -26,10 +24,10 @@ export const anecdoteInitialization = (data) => {
   }
 }
 
-export const anecdoteCreation = (content) => {
+export const anecdoteCreation = (data) => {
   return {
     type: 'CREATE',
-    content
+    data
   }
 }
 
