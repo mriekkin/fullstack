@@ -1,33 +1,25 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import Filter from './Filter'
 import { anecdoteVoting } from '../reducers/anecdoteReducer'
 import { showMessage, hideMessage } from '../reducers/notificationReducer'
 
 class AnecdoteList extends React.Component {
   handleVote = (anecdote) => () => {
-    this.props.store.dispatch(
-      anecdoteVoting(anecdote.id)
-    )
-
-    this.props.store.dispatch(
-      showMessage(`You voted '${anecdote.content}'`)
-    )
+    this.props.anecdoteVoting(anecdote.id)
+    this.props.showMessage(`You voted '${anecdote.content}'`)
     setTimeout(() => {
-      this.props.store.dispatch(
-        hideMessage()
-      )
+      this.props.hideMessage()
     }, 5000)
   }
 
   render() {
-    const anecdotes = this.props.store.getState().anecdotes
-    const filterLow = this.props.store.getState().filter.toLowerCase()
     return (
       <div>
         <h2>Anecdotes</h2>
         <Filter />
-        {anecdotes
-          .filter(anecdote => anecdote.content.toLowerCase().includes(filterLow))
+        {this.props.anecdotes
+          .filter(anecdote => anecdote.content.toLowerCase().includes(this.props.filterLow))
           .sort((a, b) => b.votes - a.votes)
           .map(anecdote =>
             <div key={anecdote.id}>
@@ -47,4 +39,20 @@ class AnecdoteList extends React.Component {
   }
 }
 
-export default AnecdoteList
+const mapStateToProps = (state) => {
+  return {
+    anecdotes: state.anecdotes,
+    filterLow: state.filter.toLowerCase()
+  }
+}
+
+const mapDispatchToProps = {
+  anecdoteVoting,
+  showMessage,
+  hideMessage
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AnecdoteList)
