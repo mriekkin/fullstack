@@ -1,19 +1,15 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { createNew } from '../reducers/anecdoteReducer'
-import { showMessage, hideMessage } from '../reducers/notificationReducer'
+import { notify } from '../reducers/notificationReducer'
 
 class AnecdoteForm extends React.Component {
   handleSubmit = async (e) => {
     e.preventDefault()
     const content = e.target.anecdote.value
     e.target.anecdote.value = ''
-
     this.props.createNew(content)
-    this.props.showMessage(`You added '${content}'`)
-    setTimeout(() => {
-      this.props.hideMessage()
-    }, 5000)
+    this.props.notify(`You added '${content}'`, 5)
   }
 
   render() {
@@ -31,8 +27,7 @@ class AnecdoteForm extends React.Component {
 
 const mapDispatchToProps = {
   createNew,
-  showMessage,
-  hideMessage
+  notify
 }
 
 export default connect(
