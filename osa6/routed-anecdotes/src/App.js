@@ -9,11 +9,27 @@ const Menu = () => (
   </div>
 )
 
+const Anecdote = ({ anecdote }) => {
+  const style = {
+    paddingBottom: 10
+  }
+  return (
+    <div>
+      <h2>{anecdote.content} by {anecdote.author}</h2>
+      <div style={style}>has {anecdote.votes} votes</div>
+      <div style={style}>for more info see <Link to={anecdote.info}>{anecdote.info}</Link></div>
+    </div>
+  )
+}
+
 const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
     <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} >{anecdote.content}</li>)}
+      {anecdotes.map(anecdote =>
+        <li key={anecdote.id}>
+          <Link to={`/anecdotes/${anecdote.id}`}>{anecdote.content}</Link>
+        </li>)}
     </ul>  
   </div>
 )
@@ -143,6 +159,9 @@ class App extends React.Component {
           <h1>Software anecdotes</h1>
             <Menu />
             <Route exact path="/" render={() => <AnecdoteList anecdotes={this.state.anecdotes}/>} />
+            <Route exact path="/anecdotes/:id" render={({match}) =>
+              <Anecdote anecdote={this.anecdoteById(match.params.id)} />}
+            />
             <Route path="/about" render={() => <About />} />
             <Route path="/create" render={() => <CreateNew addNew={this.addNew}/>} />
           <Footer />
