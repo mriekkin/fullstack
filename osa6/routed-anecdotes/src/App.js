@@ -9,6 +9,15 @@ const Menu = () => (
   </div>
 )
 
+const Notification = ({ notification }) => {
+  if (!notification) {
+    return null
+  }
+  return (
+    <div>{notification}</div>
+  )
+}
+
 const Anecdote = ({ anecdote }) => {
   const style = {
     paddingBottom: 10
@@ -17,7 +26,7 @@ const Anecdote = ({ anecdote }) => {
     <div>
       <h2>{anecdote.content} by {anecdote.author}</h2>
       <div style={style}>has {anecdote.votes} votes</div>
-      <div style={style}>for more info see <Link to={anecdote.info}>{anecdote.info}</Link></div>
+      <div style={style}>for more info see <a href={anecdote.info}>{anecdote.info}</a></div>
     </div>
   )
 }
@@ -67,7 +76,6 @@ class CreateNew extends React.Component {
   }
 
   handleChange = (e) => {
-    console.log(e.target.name, e.target.value)
     this.setState({ [e.target.name]: e.target.value })
   }
 
@@ -79,6 +87,8 @@ class CreateNew extends React.Component {
       info: this.state.info,
       votes: 0
     })
+    this.props.notify(`a new anecdote ${this.state.content} created!`)
+    this.props.history.push('/')
   }
 
   render() {
@@ -152,18 +162,32 @@ class App extends React.Component {
     this.setState({ anecdotes })
   }
 
+  notify = (notification) => {
+    this.setState({ notification })
+    setTimeout(() => {
+      this.setState({ notification: '' })
+    }, 10000)
+  }
+
   render() {
     return (
       <Router>
         <div>
           <h1>Software anecdotes</h1>
             <Menu />
-            <Route exact path="/" render={() => <AnecdoteList anecdotes={this.state.anecdotes}/>} />
+            <Notification notification={this.state.notification} />
+            <Route exact path="/" render={() =>
+              <AnecdoteList anecdotes={this.state.anecdotes}/>}
+            />
             <Route exact path="/anecdotes/:id" render={({match}) =>
               <Anecdote anecdote={this.anecdoteById(match.params.id)} />}
             />
-            <Route path="/about" render={() => <About />} />
-            <Route path="/create" render={() => <CreateNew addNew={this.addNew}/>} />
+            <Route path="/about" render={() =>
+              <About />}
+            />
+            <Route path="/create" render={({history}) =>
+              <CreateNew addNew={this.addNew} history={history} notify={this.notify} />}
+            />
           <Footer />
         </div>
       </Router>
