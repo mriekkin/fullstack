@@ -7,7 +7,7 @@ const reducer = (store = [], action) => {
 
   if (action.type==='VOTE') {
     const old = store.filter(a => a.id !==action.id)
-    return [...old, action.newAnecdote ]
+    return [...old, action.updatedAnecdote ]
   }
 
   if (action.type === 'CREATE') {
@@ -27,18 +27,26 @@ export const initializeAnecdotes = () => {
   }
 }
 
-export const anecdoteCreation = (data) => {
-  return {
-    type: 'CREATE',
-    data
+export const createNew = (content) => {
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.create(content)
+    dispatch({
+      type: 'CREATE',
+      data: newAnecdote
+    })
   }
 }
 
-export const anecdoteVoting = (id, newAnecdote) => {
-  return {
-    type: 'VOTE',
-    id,
-    newAnecdote
+export const vote = (anecdote) => {
+  return async (dispatch) => {
+    const updatedAnecdote = await anecdoteService.update(anecdote.id, {
+      ...anecdote, votes: anecdote.votes + 1
+    })
+    dispatch({
+      type: 'VOTE',
+      id: anecdote.id,
+      updatedAnecdote
+    })
   }
 }
 
